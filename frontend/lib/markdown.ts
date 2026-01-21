@@ -7,6 +7,7 @@ const CONTENT_ROOT = path.join(process.cwd(), "content");
 
 export type MarkdownResult = {
   html: string;
+  plainText: string;
   meta: {
     title?: string;
     level?: string;
@@ -39,12 +40,19 @@ export async function getMarkdownContent(
   // ✅ Parse frontmatter
   const { content, data } = matter(raw);
 
-  // ✅ Convert markdown → HTML
+  // ✅ Convert markdown → HTML (for UI)
   const html = marked.parse(content) as string;
 
+  // ✅ Convert markdown → plain text (for AI)
+  const plainText = content
+    .replace(/```[\s\S]*?```/g, "") // remove code blocks
+    .replace(/[#>*_`]/g, "")       // remove markdown symbols
+    .replace(/\n{2,}/g, "\n")      // normalize newlines
+    .trim();
 
   return {
     html,
+    plainText,
     meta: {
       title: data.title,
       level: data.level,

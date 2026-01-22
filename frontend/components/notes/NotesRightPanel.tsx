@@ -1,52 +1,29 @@
-"use client";
-
-import { useParams } from "next/navigation";
-import AISummary from "@/components/notes/AISummary";
-
 export default function NotesRightPanel() {
-  const params = useParams();
-
-  const subject = params.subject as string;
-  const topic = params.topic as string;
-  const subtopic = params.subtopic as string;
-
   return (
-    <div className="space-y-6">
-      {/* PROGRESS CARD */}
-      <div className="rounded-xl border bg-white p-4 shadow-sm">
-        <p className="text-sm font-medium text-gray-700">
-          Your Progress
+    <div className="space-y-4">
+      {/* AI SUMMARY */}
+      <div className="rounded-xl border bg-white p-4">
+        <p className="text-sm font-medium text-gray-900">
+          🤖 AI Summary
         </p>
 
-        <div className="mt-2 h-2 w-full rounded-full bg-gray-200">
-          <div className="h-2 w-1/4 rounded-full bg-indigo-600" />
-        </div>
-
-        <p className="mt-1 text-xs text-gray-500">
-          25% completed
-        </p>
+        <button className="mt-3 w-full rounded-lg border px-3 py-2 text-sm text-indigo-600 hover:bg-indigo-50 transition">
+          Generate summary
+        </button>
       </div>
 
-      {/* AI SUMMARY CARD */}
-      <AISummary
-        subject={subject}
-        topic={topic}
-        subtopic={subtopic}
-      />
-
-      {/* MOTIVATION / GUIDANCE */}
+      {/* LEARNING TIP */}
       <div className="rounded-xl bg-indigo-50 p-4 text-sm">
         <p className="font-medium text-indigo-700">
           Learning tip
         </p>
         <p className="mt-1 text-indigo-600">
-          If this feels unclear, try the AI summary or
-          re-read the intuition section.
+          If this feels unclear, re-read the intuition or try the AI summary.
         </p>
       </div>
 
-      {/* COMPLETION CTA */}
-      <button className="w-full rounded-full bg-indigo-600 py-2 text-sm font-medium text-white transition hover:bg-indigo-700">
+      {/* COMPLETION */}
+      <button className="w-full rounded-full bg-indigo-600 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition">
         Mark as Completed
       </button>
     </div>

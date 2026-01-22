@@ -1,19 +1,8 @@
 import { getMarkdownContent } from "@/lib/markdown";
+import { getPrevNextConcept } from "@/lib/navigation";
 import FeedbackBar from "@/components/notes/FeedbackBar";
-
-async function getConceptMeta(
-  subject: string,
-  topic: string,
-  subtopic: string
-) {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/concept?subject=${subject}&topic=${topic}&subtopic=${subtopic}`,
-    { cache: "no-store" }
-  );
-
-  if (!res.ok) return null;
-  return res.json();
-}
+import PrevNextNav from "@/components/notes/PrevNextNav";
+import ScrollCompletion from "@/components/notes/ScrollCompletion";
 
 export default async function SubTopicPage({
   params,
@@ -32,7 +21,7 @@ export default async function SubTopicPage({
     subtopic
   );
 
-  const dbMeta = await getConceptMeta(
+  const { prev, next } = await getPrevNextConcept(
     subject,
     topic,
     subtopic
@@ -46,36 +35,12 @@ export default async function SubTopicPage({
     );
   }
 
-  const { html } = markdownResult;
-
   return (
     <article className="prose max-w-none">
-      {/* TRUST / VERSION BAR */}
-      {dbMeta && (
-        <div className="mb-6 flex flex-wrap gap-4 rounded-lg border bg-gray-50 px-4 py-2 text-xs text-gray-600">
-          <span>
-            <strong>Version:</strong> v{dbMeta.current_version}
-          </span>
-
-          <span>
-            <strong>Confidence:</strong>{" "}
-            {Math.round(dbMeta.confidence * 100)}%
-          </span>
-
-          <span>
-            <strong>Last verified:</strong>{" "}
-            {dbMeta.last_verified
-              ? new Date(dbMeta.last_verified)
-                  .toISOString()
-                  .split("T")[0]
-              : "N/A"}
-          </span>
-        </div>
-      )}
-
-      {/* MARKDOWN CONTENT (CLEAN, CALM) */}
       <div
-        dangerouslySetInnerHTML={{ __html: html }}
+        dangerouslySetInnerHTML={{
+          __html: markdownResult.html,
+        }}
       />
 
       {/* FEEDBACK */}
@@ -86,6 +51,22 @@ export default async function SubTopicPage({
           subtopic={subtopic}
         />
       </div>
+
+      {/* NAVIGATION */}
+      <PrevNextNav
+        subject={subject}
+        topic={topic}
+        currentSubtopic={subtopic}
+        prev={prev}
+        next={next}
+      />
+
+      <ScrollCompletion
+        subject={subject}
+        topic={topic}
+        subtopic={subtopic}
+      />
+
     </article>
   );
 }

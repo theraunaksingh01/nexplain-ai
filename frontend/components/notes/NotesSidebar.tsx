@@ -1,75 +1,78 @@
-"use client";
-
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { getTopicProgress } from "@/lib/progress";
 
-type TopicMap = {
-  [key: string]: string[];
+type Props = {
+  subject: string;
+  topic: string;
+  activeSubtopic: string;
 };
 
-// 🔒 Centralized topic registry (can move to DB later)
-const TOPICS: TopicMap = {
-  oops: [
-    "Introduction",
-    "Classes",
-    "Objects",
-    "Inheritance",
-    "Polymorphism",
-    "Abstraction",
-    "Encapsulation",
-  ],
-};
+export default async function NotesSidebar({
+  subject,
+  topic,
+  activeSubtopic,
+}: Props) {
+  const progress = await getTopicProgress(subject, topic);
 
-export default function NotesSidebar() {
-  const params = useParams();
-
-  // ✅ Extract params safely
-  const subject = Array.isArray(params.subject)
-    ? params.subject[0]
-    : params.subject;
-
-  const topic = Array.isArray(params.topic)
-    ? params.topic[0]
-    : params.topic;
-
-  const activeSubtopic = Array.isArray(params.subtopic)
-    ? params.subtopic[0]
-    : params.subtopic ?? "introduction";
-
-  // 🛑 Guard: invalid route or topic not registered
-  if (!subject || !topic || !TOPICS[topic]) {
+  if (!progress.length) {
     return (
       <p className="text-sm text-gray-500">
-        No topics found
+        No topics found.
       </p>
     );
   }
 
+  const completedCount = progress.filter(
+    (p) => p.status === "completed"
+  ).length;
+
+  const percentage = Math.round(
+    (completedCount / progress.length) * 100
+  );
+
   return (
     <div>
-      {/* Topic title */}
-      <h3 className="mb-4 text-xs font-semibold uppercase text-gray-500">
-        {topic}
-      </h3>
+      {/* HEADER */}
+      <div className="mb-4">
+        <h3 className="text-xs font-semibold uppercase text-gray-500">
+          {topic}
+        </h3>
 
-      {/* Topic list */}
+        <p className="mt-1 text-xs text-gray-400">
+          {percentage}% completed
+        </p>
+
+        <div className="mt-2 h-1 w-full rounded bg-gray-200">
+          <div
+            className="h-1 rounded bg-indigo-600"
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
+      </div>
+
+      {/* TOPIC LIST */}
       <ul className="space-y-1">
-        {TOPICS[topic].map((item: string) => {
-          const slug = item.toLowerCase().replace(/\s+/g, "-");
-          const isActive = activeSubtopic === slug;
+        {progress.map(({ subtopic, status }) => {
+          const isActive = subtopic === activeSubtopic;
 
           return (
-            <li key={item}>
+            <li key={subtopic}>
               <Link
-                href={`/notes/${subject}/${topic}/${slug}`}
-                className={`block rounded-lg px-3 py-2 text-sm transition
+                href={`/notes/${subject}/${topic}/${subtopic}`}
+                className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm transition
                   ${
                     isActive
-                      ? "bg-indigo-50 text-indigo-600 font-medium"
+                      ? "bg-indigo-50 text-indigo-700 font-medium"
                       : "text-gray-700 hover:bg-gray-100"
                   }`}
               >
-                {item}
+                <span className="capitalize">
+                  {subtopic.replace("-", " ")}
+                </span>
+
+                {status === "completed" && (
+                  <span className="text-indigo-600">✔</span>
+                )}
               </Link>
             </li>
           );

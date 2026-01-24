@@ -3,18 +3,18 @@ import { getPrevNextConcept } from "@/lib/navigation";
 import FeedbackBar from "@/components/notes/FeedbackBar";
 import PrevNextNav from "@/components/notes/PrevNextNav";
 import ScrollCompletion from "@/components/notes/ScrollCompletion";
-
+import TrustBar from "@/components/notes/TrustBar";
 
 /* -----------------------------
-   TRUST / META FETCH
+   TRUST FETCH
 -------------------------------- */
-async function getConceptMeta(
+async function getTrust(
   subject: string,
   topic: string,
   subtopic: string
 ) {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/concept?subject=${subject}&topic=${topic}&subtopic=${subtopic}`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/trust?subject=${subject}&topic=${topic}&subtopic=${subtopic}`,
     { cache: "no-store" }
   );
 
@@ -42,18 +42,6 @@ export default async function SubTopicPage({
     subtopic
   );
 
-  const dbMeta = await getConceptMeta(
-    subject,
-    topic,
-    subtopic
-  );
-
-  const { prev, next } = await getPrevNextConcept(
-    subject,
-    topic,
-    subtopic
-  );
-
   if (!markdownResult) {
     return (
       <div className="text-sm text-gray-500">
@@ -62,46 +50,47 @@ export default async function SubTopicPage({
     );
   }
 
+  
+  const trust = await getTrust(subject, topic, subtopic);
+
+  const { prev, next } = await getPrevNextConcept(
+    subject,
+    topic,
+    subtopic
+  );
+
+  const version =
+  typeof trust.current_version === "number"
+    ? trust.current_version
+    : 1;
+
+
   return (
     <article className="prose max-w-none">
-
-      {/* =========================
-          TRUST BAR (TEMP LOCATION)
-          ========================= */}
-      {dbMeta && (
-        <div className="mb-6 flex flex-wrap gap-4 rounded-lg border bg-gray-50 px-4 py-2 text-xs text-gray-600">
-          <span>
-            <strong>Version:</strong> v{dbMeta.current_version}
-          </span>
-
-          <span>
-            <strong>Confidence:</strong>{" "}
-            {Math.round(dbMeta.confidence * 100)}%
-          </span>
-
-          <span>
-            <strong>Last verified:</strong>{" "}
-            {dbMeta.last_verified
-              ? new Date(dbMeta.last_verified)
-                .toISOString()
-                .split("T")[0]
-              : "N/A"}
-          </span>
-        </div>
+      {/* TRUST BAR */}
+      {trust && (
+        <TrustBar
+          version={version}
+          confidence={trust.confidence}
+          lastVerified={trust.last_verified}
+          status={
+            trust.needs_review
+              ? "needs_review"
+              : trust.expert_verified
+              ? "verified"
+              : "community"
+          }
+        />
       )}
 
-      {/* =========================
-          MARKDOWN CONTENT
-          ========================= */}
+      {/* CONTENT */}
       <div
         dangerouslySetInnerHTML={{
           __html: markdownResult.html,
         }}
       />
 
-      {/* =========================
-          FEEDBACK
-          ========================= */}
+      {/* FEEDBACK */}
       <div className="mt-10">
         <FeedbackBar
           subject={subject}
@@ -110,9 +99,7 @@ export default async function SubTopicPage({
         />
       </div>
 
-      {/* =========================
-          PREV / NEXT NAV
-          ========================= */}
+      {/* PREV / NEXT */}
       <PrevNextNav
         subject={subject}
         topic={topic}
@@ -121,16 +108,12 @@ export default async function SubTopicPage({
         next={next}
       />
 
-      {/* =========================
-          SCROLL COMPLETION
-          ========================= */}
+      {/* SCROLL COMPLETION */}
       <ScrollCompletion
         subject={subject}
         topic={topic}
         subtopic={subtopic}
       />
-
-      
     </article>
   );
 }

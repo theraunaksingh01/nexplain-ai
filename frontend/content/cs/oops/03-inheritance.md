@@ -2,7 +2,7 @@
 title: Inheritance
 level: beginner
 confidence: 0.92
-last_verified: 2025-01-10
+last_verified: 2026-01-10
 ---
 
 # Inheritance

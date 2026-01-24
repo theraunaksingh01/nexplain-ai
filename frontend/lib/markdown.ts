@@ -21,29 +21,39 @@ export async function getMarkdownContent(
   topic: string,
   subtopic: string
 ): Promise<MarkdownResult | null> {
-  const filePath = path.join(
-    CONTENT_ROOT,
-    subject,
-    topic,
-    `${subtopic}.md`
-  );
+  const topicDir = path.join(CONTENT_ROOT, subject, topic);
 
-  console.log("Loading markdown from:", filePath);
+  console.log("📂 Looking in:", topicDir);
 
-  if (!fs.existsSync(filePath)) {
-    console.error("❌ File does not exist");
+  if (!fs.existsSync(topicDir)) {
+    console.error("❌ Topic directory does not exist");
     return null;
   }
+
+  // ✅ Find numbered markdown file (e.g. 03-inheritance.md)
+  const files = fs.readdirSync(topicDir);
+
+  const matchedFile = files.find((file) =>
+    file.endsWith(`-${subtopic}.md`)
+  );
+
+  if (!matchedFile) {
+    console.error("❌ Markdown file not found for subtopic:", subtopic);
+    return null;
+  }
+
+  const filePath = path.join(topicDir, matchedFile);
+  console.log("✅ Loading markdown:", filePath);
 
   const raw = fs.readFileSync(filePath, "utf-8");
 
   // ✅ Parse frontmatter
   const { content, data } = matter(raw);
 
-  // ✅ Convert markdown → HTML (for UI)
+  // ✅ Markdown → HTML (UI rendering)
   const html = marked.parse(content) as string;
 
-  // ✅ Convert markdown → plain text (for AI)
+  // ✅ Markdown → Plain text (AI / analytics / summaries)
   const plainText = content
     .replace(/```[\s\S]*?```/g, "") // remove code blocks
     .replace(/[#>*_`]/g, "")       // remove markdown symbols

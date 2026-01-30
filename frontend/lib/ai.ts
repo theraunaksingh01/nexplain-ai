@@ -9,9 +9,12 @@ function looksNonEnglish(text: string): boolean {
 }
 
 /**
+ * 🔑 EXPORT THIS
  * Low-level Ollama call (shared)
  */
-async function callOllama(prompt: string): Promise<string> {
+export async function callOllama(
+  prompt: string
+): Promise<string> {
   const res = await fetch(OLLAMA_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -28,7 +31,7 @@ async function callOllama(prompt: string): Promise<string> {
 
 /**
  * ----------------------------------------
- * AI SUMMARY (used in right panel)
+ * AI SUMMARY (used in right panel only)
  * ----------------------------------------
  */
 export async function generateSummaryWithOllama(
@@ -70,7 +73,8 @@ OUTPUT (English bullet points only):
 
   return response
     .split("\n")
-    .map((line) => line.replace(/^[-•\d.]+\s*/, "").trim())
+    .map((line) =>
+      line.replace(/^[-•\d.]+\s*/, "").trim()
+    )
     .filter(Boolean);
 }
-

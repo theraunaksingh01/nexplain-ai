@@ -1,38 +1,32 @@
+// app/api/feedback/route.ts
 import { NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import { markCompleted } from "@/lib/progress";
 
 export async function POST(req: Request) {
   try {
     const { subject, topic, subtopic, feedback } = await req.json();
 
     if (!subject || !topic || !subtopic || !feedback) {
-      return NextResponse.json(
-        { error: "Invalid data" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid data" }, { status: 400 });
     }
 
-    // 1️⃣ Get concept ID
-    const concepts = (await query(
+    const concepts = await query(
       `
       SELECT id
       FROM concepts
       WHERE subject = $1 AND topic = $2 AND subtopic = $3
       `,
       [subject, topic, subtopic]
-    )) as { id: string }[];
+    ) as { id: string }[];
 
     if (!concepts.length) {
-      return NextResponse.json(
-        { error: "Concept not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Concept not found" }, { status: 404 });
     }
 
     const conceptId = concepts[0].id;
 
-    // 2️⃣ Store user feedback
-    // clarity_score: +1 = clear, -1 = confusing
+    // Store feedback (append-only)
     await query(
       `
       INSERT INTO user_feedback (concept_id, clarity_score)
@@ -41,20 +35,9 @@ export async function POST(req: Request) {
       [conceptId, feedback === "clear" ? 1 : -1]
     );
 
-    // 3️⃣ SMART COMPLETION RULE (Phase 6.4)
-    // If user explicitly says "clear", mark as completed
+    // ✅ SINGLE completion path
     if (feedback === "clear") {
-      await query(
-        `
-        INSERT INTO user_progress (concept_id, status)
-        VALUES ($1, 'completed')
-        ON CONFLICT (concept_id)
-        DO UPDATE SET
-          status = 'completed',
-          last_read_at = now()
-        `,
-        [conceptId]
-      );
+      await markCompleted(conceptId);
     }
 
     return NextResponse.json({ success: true });

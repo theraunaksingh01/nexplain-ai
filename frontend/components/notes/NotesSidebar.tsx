@@ -56,7 +56,8 @@ export default async function NotesSidebar({
           const isActive = subtopic === activeSubtopic;
 
           return (
-            <li key={subtopic}>
+           <li key={`${topic}-${subtopic}`}>
+
               <Link
                 href={`/notes/${subject}/${topic}/${subtopic}`}
                 className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm transition

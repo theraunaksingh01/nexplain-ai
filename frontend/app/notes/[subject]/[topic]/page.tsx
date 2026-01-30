@@ -1,16 +1,17 @@
-export default function TopicIntroPage({
+export default async function TopicIntroPage({
   params,
 }: {
-  params: { subject: string; topic: string };
+  params: Promise<{ subject: string; topic: string }>;
 }) {
+  const { topic } = await params;
+
   return (
     <div className="prose max-w-none">
-      <h1 className="capitalize">{params.topic}</h1>
+      <h1 className="capitalize">{topic}</h1>
       <p>
         This section covers all core concepts related to{" "}
-        <strong>{params.topic}</strong>.
+        <strong>{topic}</strong>. Select a topic from the left to begin.
       </p>
-      <p>Select a topic from the left to begin.</p>
     </div>
   );
 }

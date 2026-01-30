@@ -1,5 +1,8 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
 export default function FeedbackBar({
   subject,
   topic,
@@ -9,7 +12,12 @@ export default function FeedbackBar({
   topic: string;
   subtopic: string;
 }) {
-  const sendFeedback = async (feedback: "clear" | "confusing") => {
+  const router = useRouter();
+  const [loading, setLoading] = useState<null | "clear" | "confusing">(null);
+
+  async function sendFeedback(type: "clear" | "confusing") {
+    setLoading(type);
+
     await fetch("/api/feedback", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -17,28 +25,47 @@ export default function FeedbackBar({
         subject,
         topic,
         subtopic,
-        feedback,
+        feedback: type,
       }),
     });
-  };
+
+    setLoading(null);
+    router.refresh();
+  }
 
   return (
-    <div className="mt-10 flex items-center justify-center gap-4 border-t pt-6 text-sm text-gray-600">
-      <span>Was this explanation clear?</span>
+    <div className="mt-12 rounded-xl border bg-gray-50 px-6 py-4">
+      <p className="mb-3 text-sm font-medium text-gray-700">
+        Was this explanation helpful?
+      </p>
 
-      <button
-        onClick={() => sendFeedback("clear")}
-        className="rounded-full bg-green-50 px-4 py-1 text-green-700 hover:bg-green-100"
-      >
-        👍 Yes
-      </button>
+      <div className="flex gap-3">
+        <button
+          onClick={() => sendFeedback("clear")}
+          disabled={loading !== null}
+          className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition
+            ${
+              loading === "clear"
+                ? "bg-green-50 border-green-400 text-green-700"
+                : "bg-white hover:bg-green-50"
+            }`}
+        >
+          👍 Clear
+        </button>
 
-      <button
-        onClick={() => sendFeedback("confusing")}
-        className="rounded-full bg-red-50 px-4 py-1 text-red-700 hover:bg-red-100"
-      >
-        👎 Confusing
-      </button>
+        <button
+          onClick={() => sendFeedback("confusing")}
+          disabled={loading !== null}
+          className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition
+            ${
+              loading === "confusing"
+                ? "bg-amber-50 border-amber-400 text-amber-700"
+                : "bg-white hover:bg-amber-50"
+            }`}
+        >
+          🤔 Needs improvement
+        </button>
+      </div>
     </div>
   );
 }

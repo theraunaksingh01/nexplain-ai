@@ -3,7 +3,13 @@ import { query } from "@/lib/db";
 
 export async function GET() {
   const concepts = await query(`
-    SELECT subject, topic, subtopic, confidence, last_verified
+    SELECT
+      id,
+      subject,
+      topic,
+      subtopic,
+      confidence,
+      last_verified
     FROM concepts
     WHERE confidence < 0.8
        OR last_verified IS NULL

@@ -5,65 +5,62 @@ import { recalculateConfidence } from "@/lib/confidence";
 export async function POST(req: Request) {
   try {
     const {
-      subject,
-      topic,
-      subtopic,
+      id, // concept id
       expert_name,
       decision,
       comment,
       confidence_delta,
+      ai_alignment,
     } = await req.json();
 
-    if (!expert_name || !decision) {
+    if (!id || !expert_name || !decision) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Invalid payload" },
         { status: 400 }
       );
     }
 
-    // 1️⃣ Find concept
-    const concept = await query(
-      `
-      SELECT id FROM concepts
-      WHERE subject = $1 AND topic = $2 AND subtopic = $3
-      `,
-      [subject, topic, subtopic]
-    );
-
-    if (!concept.length) {
-      return NextResponse.json(
-        { error: "Concept not found" },
-        { status: 404 }
-      );
-    }
-
-    const conceptId = concept[0].id;
-
-    // 2️⃣ Insert expert review
+    // 1️⃣ Store expert review
     await query(
       `
-      INSERT INTO expert_reviews
-        (concept_id, expert_name, decision, comment, confidence_delta)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO expert_reviews (
+        concept_id,
+        expert_name,
+        decision,
+        comment,
+        confidence_delta,
+        ai_alignment
+      )
+      VALUES ($1, $2, $3, $4, $5, $6)
       `,
       [
-        conceptId,
+        id,
         expert_name,
         decision,
         comment ?? null,
         confidence_delta ?? 0,
+        ai_alignment ?? null,
       ]
     );
 
-    // 3️⃣ Recalculate confidence
-    const newConfidence = await recalculateConfidence(conceptId);
+    // 2️⃣ Update concept review flags
+    await query(
+      `
+      UPDATE concepts
+      SET
+        needs_review = FALSE,
+        last_verified = now()
+      WHERE id = $1
+      `,
+      [id]
+    );
 
-    return NextResponse.json({
-      success: true,
-      new_confidence: newConfidence,
-    });
-  } catch (error) {
-    console.error("Expert review error:", error);
+    // 3️⃣ Recalculate confidence (AI + human weighted)
+    await recalculateConfidence(id);
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("Expert review error:", err);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

@@ -1,32 +1,30 @@
-import { query } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { query } from "@/lib/db";
+import { getOrCreateAnonUserId } from "@/lib/user";
 
 export async function POST(req: Request) {
-  const { subject, topic, subtopic } = await req.json();
+  const { conceptId } = await req.json();
 
-  const [concept] = await query(
-    `
-    SELECT id FROM concepts
-    WHERE subject = $1 AND topic = $2 AND subtopic = $3
-    `,
-    [subject, topic, subtopic]
-  );
-
-  if (!concept) {
-    return NextResponse.json({ ok: false });
+  if (!conceptId) {
+    return NextResponse.json(
+      { error: "Missing conceptId" },
+      { status: 400 }
+    );
   }
+
+  const anonUserId = await getOrCreateAnonUserId();
 
   await query(
     `
-    INSERT INTO user_progress (concept_id, status)
-    VALUES ($1, 'completed')
-    ON CONFLICT (concept_id)
+    INSERT INTO user_progress (anon_user_id, concept_id, status)
+    VALUES ($1, $2, 'completed')
+    ON CONFLICT (anon_user_id, concept_id)
     DO UPDATE SET
       status = 'completed',
       last_read_at = now()
     `,
-    [concept.id]
+    [anonUserId, conceptId]
   );
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ success: true });
 }

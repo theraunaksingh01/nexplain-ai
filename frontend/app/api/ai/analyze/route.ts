@@ -138,6 +138,21 @@ Analyze what is missing and suggest improvements.
     patches: analysis.suggested_patches.length,
   });
 
+  // 🔍 AUDIT LOG — AI analysis run
+  await query(
+    `
+  INSERT INTO audit_events
+    (concept_id, event_type, actor_role, details)
+  VALUES ($1, 'ai_analysis', 'system', $2)
+  `,
+    [
+      conceptId,
+      JSON.stringify({
+        patches_created: analysis.suggested_patches.length,
+      }),
+    ]
+  );
+
   return NextResponse.json({
     success: true,
     patches_created: analysis.suggested_patches.length,

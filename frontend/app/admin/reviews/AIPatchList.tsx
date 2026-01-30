@@ -18,8 +18,12 @@ export default function AIPatchList({
   onApprovedCountChange: (count: number) => void;
 }) {
   const [patches, setPatches] = useState<Patch[]>([]);
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
+  /* -----------------------------
+     LOAD PATCHES
+  -------------------------------- */
   async function load() {
     setLoading(true);
 
@@ -30,41 +34,57 @@ export default function AIPatchList({
     const list: Patch[] = data.patches || [];
 
     setPatches(list);
-    setLoading(false);
+
+    // initialize drafts from DB
+    const initialDrafts: Record<string, string> = {};
+    for (const p of list) {
+      if (p.edited_markdown) {
+        initialDrafts[p.id] = p.edited_markdown;
+      }
+    }
+    setDrafts(initialDrafts);
 
     onApprovedCountChange(
-      list.filter(p => p.status === "approved").length
+      list.filter((p) => p.status === "approved").length
     );
+
+    setLoading(false);
   }
 
-  async function saveEdit(patchId: string, value: string) {
-    await fetch("/api/ai/patches/edit", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        patchId,
-        editedMarkdown: value,
-      }),
-    });
-  }
-
+  /* -----------------------------
+     APPROVE / REJECT
+  -------------------------------- */
   async function act(
     patch: Patch,
     action: "approved" | "rejected"
   ) {
-    if (
-      action === "approved" &&
-      (!patch.edited_markdown ||
-        patch.edited_markdown.trim().length === 0)
-    ) {
-      alert("Please add content before approving.");
-      return;
+    if (action === "approved") {
+      const content = drafts[patch.id];
+
+      if (!content || !content.trim()) {
+        alert("Please add content before approving.");
+        return;
+      }
+
+      // 1️⃣ Save edited content first
+      await fetch("/api/ai/patches/edit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patchId: patch.id,
+          editedMarkdown: content,
+        }),
+      });
     }
 
+    // 2️⃣ Approve / reject
     await fetch("/api/ai/patches/action", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ patchId: patch.id, action }),
+      body: JSON.stringify({
+        patchId: patch.id,
+        action,
+      }),
     });
 
     load();
@@ -75,11 +95,19 @@ export default function AIPatchList({
   }, [conceptId]);
 
   if (loading) {
-    return <p className="text-sm text-gray-500">Loading AI suggestions…</p>;
+    return (
+      <p className="text-sm text-gray-500">
+        Loading AI suggestions…
+      </p>
+    );
   }
 
   if (!patches.length) {
-    return <p className="text-sm text-gray-500">No AI-suggested improvements.</p>;
+    return (
+      <p className="text-sm text-gray-500">
+        No AI-suggested improvements.
+      </p>
+    );
   }
 
   return (
@@ -108,14 +136,20 @@ export default function AIPatchList({
 
           {/* EDITOR */}
           <textarea
-            defaultValue={p.edited_markdown || ""}
+            value={drafts[p.id] ?? ""}
             disabled={p.status !== "pending"}
             placeholder="Write the final content to be added…"
-            onBlur={(e) => saveEdit(p.id, e.target.value)}
-            className={`w-full rounded border px-3 py-2 text-sm ${p.status !== "pending"
+            onChange={(e) =>
+              setDrafts({
+                ...drafts,
+                [p.id]: e.target.value,
+              })
+            }
+            className={`w-full rounded border px-3 py-2 text-sm ${
+              p.status !== "pending"
                 ? "bg-gray-50 cursor-not-allowed"
                 : ""
-              }`}
+            }`}
             rows={5}
           />
 

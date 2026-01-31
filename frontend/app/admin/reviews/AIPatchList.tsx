@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRole } from "@/hooks/useRole";
+import { useSession } from "next-auth/react";
 
 type Patch = {
   id: string;
@@ -20,6 +22,10 @@ export default function AIPatchList({
   const [patches, setPatches] = useState<Patch[]>([]);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
+
+  const { data: session } = useSession();
+  const role = session?.user?.role;
+  const canEdit = role === "expert" || role === "admin";
 
   /* -----------------------------
      LOAD PATCHES
@@ -137,7 +143,7 @@ export default function AIPatchList({
           {/* EDITOR */}
           <textarea
             value={drafts[p.id] ?? ""}
-            disabled={p.status !== "pending"}
+            disabled={role === "reader" || p.status !== "pending"}
             placeholder="Write the final content to be added…"
             onChange={(e) =>
               setDrafts({
@@ -145,16 +151,15 @@ export default function AIPatchList({
                 [p.id]: e.target.value,
               })
             }
-            className={`w-full rounded border px-3 py-2 text-sm ${
-              p.status !== "pending"
+            className={`w-full rounded border px-3 py-2 text-sm ${p.status !== "pending"
                 ? "bg-gray-50 cursor-not-allowed"
                 : ""
-            }`}
+              }`}
             rows={5}
           />
 
           {/* ACTIONS */}
-          {p.status === "pending" && (
+          {p.status === "pending" && role !== "reader" && (
             <div className="mt-3 flex gap-2">
               <button
                 onClick={() => act(p, "approved")}

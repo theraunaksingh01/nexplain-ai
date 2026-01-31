@@ -1,8 +1,15 @@
 import { NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import { getCurrentUserRole } from "@/lib/auth";
+import { requireExpert } from "@/lib/permissions";
 
 export async function POST(req: Request) {
   const { patchId, action } = await req.json();
+  const role = await getCurrentUserRole();
+
+  if (role !== "admin") {
+    return new Response("Forbidden", { status: 403 });
+  }
 
   // 1️⃣ Fetch concept_id for this patch
   const rows = await query(

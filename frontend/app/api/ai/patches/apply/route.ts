@@ -1,10 +1,17 @@
 import { NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import { getCurrentUserRole } from "@/lib/auth";
+import { requireAdmin } from "@/lib/permissions";
 import fs from "fs";
 import path from "path";
 
 export async function POST(req: Request) {
   const { conceptId, comment } = await req.json();
+  const role = await getCurrentUserRole();
+
+  if (role !== "admin") {
+    return new Response("Forbidden", { status: 403 });
+  }
 
   if (!conceptId) {
     return NextResponse.json(

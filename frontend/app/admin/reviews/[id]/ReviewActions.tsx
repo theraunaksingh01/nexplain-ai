@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRole } from "@/hooks/useRole";
+import { useSession } from "next-auth/react";
 
 export default function ReviewActions({
   conceptId,
@@ -11,6 +13,17 @@ export default function ReviewActions({
 }) {
   const [loading, setLoading] = useState(false);
   const [comment, setComment] = useState("");
+
+  const { data: session } = useSession();
+  const role = session?.user?.role;
+
+  if (role !== "admin") {
+    return (
+      <div className="rounded-xl bg-gray-50 p-6 text-sm text-gray-500">
+        Final publishing is restricted to administrators.
+      </div>
+    );
+  }
 
   async function publish() {
     if (approvedCount === 0) {

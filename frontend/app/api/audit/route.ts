@@ -1,9 +1,16 @@
 import { NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import { getCurrentUserRole } from "@/lib/auth";
+import { requireAdmin } from "@/lib/permissions";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const conceptId = searchParams.get("conceptId");
+  const role = await getCurrentUserRole();
+
+  if (role !== "admin") {
+    return new Response("Forbidden", { status: 403 });
+  }
 
   if (!conceptId) {
     return NextResponse.json({ events: [] });

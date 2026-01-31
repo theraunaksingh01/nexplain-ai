@@ -2,11 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
+import { usePathname } from "next/navigation";
+
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSubmenu, setMobileSubmenu] = useState<string | null>(null);
+
+  const pathname = usePathname();
+
+  // Hide navbar completely on admin routes
+  if (pathname.startsWith("/admin")) {
+    return null;
+  }
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 40);

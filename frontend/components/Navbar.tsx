@@ -4,18 +4,16 @@ import { useEffect, useState } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { usePathname } from "next/navigation";
 
-
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSubmenu, setMobileSubmenu] = useState<string | null>(null);
 
+  // ✅ hook always runs
   const pathname = usePathname();
 
-  // Hide navbar completely on admin routes
-  if (pathname.startsWith("/admin")) {
-    return null;
-  }
+  // ✅ compute, don’t early return
+  const hideNavbar = pathname.startsWith("/admin");
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 40);
@@ -45,14 +43,19 @@ export default function Navbar() {
   ];
 
   return (
-    <header className="fixed top-6 inset-x-0 z-50 px-4">
+    <header
+      className={`fixed top-6 inset-x-0 z-50 px-4 ${
+        hideNavbar ? "hidden" : "block"
+      }`}
+    >
       <div className="mx-auto max-w-6xl">
         {/* ================= DESKTOP NAVBAR ================= */}
         <div
           className={`hidden md:flex items-center justify-between px-8 py-3 rounded-full transition-all duration-300
-  ${isScrolled
-              ? "bg-white/80 backdrop-blur-xl shadow-lg border border-gray-200"
-              : "bg-transparent"
+            ${
+              isScrolled
+                ? "bg-white/80 backdrop-blur-xl shadow-lg border border-gray-200"
+                : "bg-transparent"
             }`}
         >
           {/* LEFT: Logo */}
@@ -72,7 +75,6 @@ export default function Navbar() {
                     <ChevronDown className="h-4 w-4 transition-transform group-hover:rotate-180" />
                   </button>
 
-                  {/* Dropdown */}
                   <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition">
                     <div className="w-64 rounded-xl bg-white shadow-xl border p-2">
                       {item.items.map((sub) => (
@@ -113,13 +115,13 @@ export default function Navbar() {
           </div>
         </div>
 
-
         {/* ================= MOBILE HEADER ================= */}
         <div
           className={`md:hidden flex items-center justify-between px-4 py-3 rounded-full transition-all duration-300
-          ${isScrolled
-              ? "bg-white/80 backdrop-blur-xl shadow-lg border border-gray-200"
-              : "bg-transparent"
+            ${
+              isScrolled
+                ? "bg-white/80 backdrop-blur-xl shadow-lg border border-gray-200"
+                : "bg-transparent"
             }`}
         >
           <span className="text-sm font-semibold">
@@ -147,8 +149,9 @@ export default function Navbar() {
                   >
                     {item.name}
                     <ChevronDown
-                      className={`h-4 w-4 transition-transform ${mobileSubmenu === item.name ? "rotate-180" : ""
-                        }`}
+                      className={`h-4 w-4 transition-transform ${
+                        mobileSubmenu === item.name ? "rotate-180" : ""
+                      }`}
                     />
                   </button>
 

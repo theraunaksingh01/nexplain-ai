@@ -1,9 +1,17 @@
+// app/api/resume/route.ts
 import { NextResponse } from "next/server";
 import { query } from "@/lib/db";
-import { getOrCreateAnonUserId } from "@/lib/user";
+import { getAnonUserId } from "@/lib/user";
 
 export async function GET() {
-  const anonUserId = await getOrCreateAnonUserId();
+  const anonUserId = getAnonUserId(); // ✅ NOT async
+
+  if (!anonUserId) {
+    return NextResponse.json(
+      { error: "Anon user not initialized" },
+      { status: 401 }
+    );
+  }
 
   const rows = await query(
     `

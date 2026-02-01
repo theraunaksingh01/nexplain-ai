@@ -4,6 +4,9 @@ import FeedbackBar from "@/components/notes/FeedbackBar";
 import PrevNextNav from "@/components/notes/PrevNextNav";
 import ScrollCompletion from "@/components/notes/ScrollCompletion";
 import TrustBar from "@/components/notes/TrustBar";
+import { getTopicProgress } from "@/lib/progress";
+import { deriveSubtopicStates } from "@/lib/progress";
+import { notFound } from "next/navigation";
 
 /* -----------------------------
    TRUST FETCH
@@ -36,6 +39,21 @@ export default async function SubTopicPage({
 }) {
   const { subject, topic, subtopic } = await params;
 
+  const progress = await getTopicProgress(subject, topic);
+  const states = deriveSubtopicStates(progress);
+
+  const current = states.find((s) => s.state === "current");
+
+  if (
+    current &&
+    subtopic !== current.subtopic &&
+    !states.find(
+      (s) => s.subtopic === subtopic && s.state === "completed"
+    )
+  ) {
+    notFound(); // 🚫 user tried to skip ahead
+  }
+
   const markdownResult = await getMarkdownContent(
     subject,
     topic,
@@ -50,7 +68,7 @@ export default async function SubTopicPage({
     );
   }
 
-  
+
   const trust = await getTrust(subject, topic, subtopic);
 
   const { prev, next } = await getPrevNextConcept(
@@ -60,9 +78,9 @@ export default async function SubTopicPage({
   );
 
   const version =
-  typeof trust.current_version === "number"
-    ? trust.current_version
-    : 1;
+    typeof trust.current_version === "number"
+      ? trust.current_version
+      : 1;
 
 
   return (
@@ -77,8 +95,8 @@ export default async function SubTopicPage({
             trust.needs_review
               ? "needs_review"
               : trust.expert_verified
-              ? "verified"
-              : "community"
+                ? "verified"
+                : "community"
           }
         />
       )}

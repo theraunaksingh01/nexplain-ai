@@ -30,6 +30,11 @@ export default async function NotesSidebar({
     (completedCount / progress.length) * 100
   );
 
+  // find current subtopic
+  const current =
+    progress.find((p) => p.status !== "completed") ??
+    progress[progress.length - 1];
+
   return (
     <div>
       {/* HEADER */}
@@ -50,14 +55,14 @@ export default async function NotesSidebar({
         </div>
       </div>
 
-      {/* TOPIC LIST */}
+      {/* SUBTOPICS */}
       <ul className="space-y-1">
         {progress.map(({ subtopic, status }) => {
           const isActive = subtopic === activeSubtopic;
+          const isCurrent = subtopic === current.subtopic;
 
           return (
-           <li key={`${topic}-${subtopic}`}>
-
+            <li key={`${topic}-${subtopic}`}>
               <Link
                 href={`/notes/${subject}/${topic}/${subtopic}`}
                 className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm transition
@@ -71,9 +76,8 @@ export default async function NotesSidebar({
                   {subtopic.replace("-", " ")}
                 </span>
 
-                {status === "completed" && (
-                  <span className="text-indigo-600">✔</span>
-                )}
+                {status === "completed" && "✔"}
+                {isCurrent && status !== "completed" && "▶"}
               </Link>
             </li>
           );

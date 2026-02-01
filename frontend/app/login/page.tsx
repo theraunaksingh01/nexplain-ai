@@ -24,7 +24,7 @@ export default function LoginPage() {
       email,
       password,
       redirect: false,
-      callbackUrl: '/admin/reviews',
+      callbackUrl: '/dashboard',
     });
 
     setLoading(false);

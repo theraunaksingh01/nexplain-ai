@@ -1,86 +1,84 @@
-📘 NExplain — Structured Notes for Core CS Concepts
+# NExplain
 
-NExplain is a clean, structured notes platform built to make core computer science concepts clear, concise, and beginner-friendly.
+NExplain is a simple, focused platform for **clear, structured technical notes**.
 
-This project was created to solve a personal learning problem:
-while studying CS fundamentals, existing resources often felt verbose, fragmented, or unclear, especially for first-time learners. NExplain focuses on point-wise explanations, intuition, and clarity.
+This project was created to solve a personal problem:  
+many popular learning sites provide *too much information*, making it hard for beginners to understand core concepts clearly and quickly.
 
-✨ What This Project Does Well
+NExplain focuses on:
+- Simplicity
+- Concept-first explanations
+- Minimal but sufficient theory
 
-📚 Structured Notes
-Clear, markdown-based notes for core topics (currently OOPS).
+---
 
-🧭 Logical Flow
-Each topic is broken down into:
+## 🎯 Why This Project Exists
 
-Definition
+While learning computer science topics, I often found that:
+- Notes were scattered
+- Explanations were verbose or confusing
+- Core ideas were buried under unnecessary details
 
-Intuition
+NExplain was built as an attempt to create:
+- Clean, readable notes
+- Beginner-friendly explanations
+- Well-structured topic breakdowns
 
-Why it matters
+This repository represents the **notes-first foundation** of that idea.
 
-Key points
+---
 
-Simple examples
+## 📚 Current Content
 
-📈 Progress Tracking (Prototype)
-Tracks reading progress at topic and subtopic level.
+### Computer Science
+- Object Oriented Programming (OOPS)
+  - Introduction
+  - Classes and Objects
+  - Inheritance
+  - Polymorphism
 
-🧠 Focused Learning Experience
-No distractions, no clutter — just concepts explained cleanly.
+Each topic is written as a standalone Markdown file and can be read directly on GitHub.
 
-📂 Current Topics
+---
 
-Computer Science
 
-Object-Oriented Programming (OOPS)
+## ✨ Design Philosophy
 
-Introduction
+* **Clarity over completeness**
+* **Concepts before syntax**
+* **Readable in one sitting**
+* **No distractions**
 
-Classes & Objects
+The goal is not to replace textbooks or documentation, but to provide a clean starting point for learners.
 
-Inheritance
+---
 
-Polymorphism
+## 🚧 Project Status
 
-(Notes are written and maintained in Markdown for simplicity.)
+This project is now **archived**.
 
-🛠 Tech Stack
+It will remain available as:
 
-Next.js (App Router)
+* A reference for structured notes
+* A learning artifact
+* A foundation for future ideas
 
-TypeScript
+No new features or expansions are planned.
 
-Tailwind CSS
+---
 
-PostgreSQL
+## 🙏 A Note
 
-Markdown-based content
+This project represents an honest attempt to solve a real learning problem.
+Even though it will not evolve further, the lessons learned from building it will carry forward into future projects.
 
-NextAuth (prototype authentication)
+If you find the notes useful, feel free to read, fork, or adapt them.
 
-🎯 Project Status
+---
 
-This project is complete and archived.
+## 📄 License
 
-While the original idea explored advanced features like AI assistance and analytics, this repository is intentionally finalized as a clean notes platform and learning artifact.
+This project is open for learning and personal use.
 
-Future work, if any, will happen in separate repositories with a different problem focus.
+```
 
-📌 Why This Project Exists
-
-To practice building a full-stack learning platform
-
-To experiment with content structuring and UX for education
-
-To document a real product iteration journey — including deciding when not to continue
-
-🧠 Key Takeaway
-
-Not every good project needs to become a startup.
-Some projects exist to sharpen thinking, taste, and judgment.
-
-🧑‍💻 Author
-
-Built with care and curiosity by Raunak
-If you’re exploring similar problems or want to discuss ideas — feel free to connect.

@@ -6,13 +6,12 @@ import { randomUUID } from "crypto";
 const COOKIE_NAME = "anon_user_id";
 
 export async function POST() {
-  const cookieStore = await cookies(); // ✅ await REQUIRED
+  const cookieStore = await cookies();
 
   let anonId = cookieStore.get(COOKIE_NAME)?.value;
 
   if (!anonId) {
     anonId = randomUUID();
-
     cookieStore.set(COOKIE_NAME, anonId, {
       httpOnly: true,
       sameSite: "lax",

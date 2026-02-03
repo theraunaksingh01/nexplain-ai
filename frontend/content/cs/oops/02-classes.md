@@ -1,88 +1,37 @@
+# Classes and Objects
 
+## Class
 
----
+A class is a **blueprint** that defines the properties and behaviors of an object.
 
-## AI Improvements
-
-### example
-
-class Student {
-    int id;
-    String n;
-
-    public Student(int id, String n) {
-        this.id = id;
-        this.n = n;
-    }
-}
-
-public class Main {
-    public static void main(String[] args) {
-        Student s1 = new Student(10, "Alice");
-        System.out.println(s1.id);
-        System.out.println(s1.n);
-    }
-}
-
-### definition
-
-A class is a blueprint that defines data and behavior for objects. It groups related fields and methods in a single unit. Memory for its members is allocated only when an object is created.
-
-Acts as a template to create objects with shared structure.
-Does not occupy memory for fields until instantiation.
-Can contain fields, methods, constructors, nested classes and interfaces.
-
+It does not occupy memory by itself.
 
 ---
 
-## AI Improvements
+## Object
 
-### example
+An object is an **instance of a class**.
 
-class Student {
-    int id;
-    String n;
-
-    public Student(int id, String n) {
-        this.id = id;
-        this.n = n;
-    }
-}
-
-public class Main {
-    public static void main(String[] args) {
-        Student s1 = new Student(10, "Alice");
-        System.out.println(s1.id);
-        System.out.println(s1.n);
-    }
-}
-
-### definition
-
-A class is a blueprint that defines data and behavior for objects. It groups related fields and methods in a single unit. Memory for its members is allocated only when an object is created.
-
-Acts as a template to create objects with shared structure.
-Does not occupy memory for fields until instantiation.
-Can contain fields, methods, constructors, nested classes and interfaces.
-
+It represents a real entity created using the class blueprint.
 
 ---
 
-## AI Improvements
+## Intuition
 
-### clarification
-
-In Java, classes and objects form the foundation of Object-Oriented Programming (OOP). They help model real-world entities and organize code in a structured way.
-
-A class is a blueprint used to create objects that share common properties and behavior.
-An object is an instance of a class. It represents a specific entity created from the class template.
-For Example, Dog is a class, Tommy is an object of that class.
-
+- Class → Design
+- Object → Actual thing created from the design
 
 ---
 
-## AI Improvements
+## Example (Java)
 
-### edge case
+```java
+class Car {
+  String color;
 
-Edge Cases Not Required
+  void drive() {
+    System.out.println("Car is driving");
+  }
+}
+
+Car myCar = new Car();

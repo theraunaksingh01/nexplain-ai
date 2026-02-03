@@ -1,25 +1,37 @@
----
-title: Inheritance
-level: beginner
-confidence: 0.92
-last_verified: 2026-01-10
+
 ---
 
-# Inheritance
+# **Inheritance**
+
+---
 
 ## Definition
-Inheritance allows a class to acquire properties and behaviors of another class.
+
+Inheritance allows one class to **acquire properties and methods** of another class.
+
+---
 
 ## Intuition
-Think of inheritance like a child inheriting traits from parents.
 
-## Why it matters
+Inheritance is like a child inheriting traits from parents.
+
+---
+
+## Why It Matters
+
 - Promotes code reuse
-- Enables polymorphism
-- Improves maintainability
+- Reduces duplication
+- Makes systems easier to extend
+
+---
 
 ## Example (Java)
 
 ```java
-class Animal {}
-class Dog extends Animal {}
+class Animal {
+  void eat() {}
+}
+
+class Dog extends Animal {
+  void bark() {}
+}
